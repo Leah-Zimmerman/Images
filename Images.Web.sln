@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Images.Web", "Images.Web\Images.Web.csproj", "{6DE13161-136B-4FD1-9868-B8A72BF50859}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Images.Data", "Images.Data\Images.Data.csproj", "{5E974A8F-1E52-4443-B95C-88E345FDAACB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6DE13161-136B-4FD1-9868-B8A72BF50859}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE13161-136B-4FD1-9868-B8A72BF50859}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE13161-136B-4FD1-9868-B8A72BF50859}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE13161-136B-4FD1-9868-B8A72BF50859}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E974A8F-1E52-4443-B95C-88E345FDAACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E974A8F-1E52-4443-B95C-88E345FDAACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E974A8F-1E52-4443-B95C-88E345FDAACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E974A8F-1E52-4443-B95C-88E345FDAACB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F025B8D-92D7-4833-A0D1-4B5B7B054E04}
+	EndGlobalSection
+EndGlobal
