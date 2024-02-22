@@ -1,7 +1,11 @@
 ﻿using Images.Data;
 using Images.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Images.Web.Controllers
 {
@@ -27,9 +31,9 @@ namespace Images.Web.Controllers
             image.CopyTo(fs);
 
             var im = new ImageManager(_connectionString);
-            int id = im.AddAndGetId(imagePath, password);
+            int id = im.AddAndGetId(imagePath, password, fileName);
 
-            return RedirectToAction(`thankyou?{id}`);
+            return Redirect($"/home/thankyou?id={id}");
         }
         public IActionResult ThankYou(int id)
         {
@@ -38,8 +42,91 @@ namespace Images.Web.Controllers
         }
         public IActionResult ViewImage(int id)
         {
-            return View();
+            var im = new ImageManager(_connectionString);
+            var image = im.GetImageById(id);
+
+            var existingInSession = HttpContext.Session.Get<List<int>>("Session");
+
+            if (existingInSession == null && TempData["InvalidPassword"] == null)
+            {
+                var ivm = new ImageViewModel
+                {
+                    Image = image,
+                    NeedPassword = true
+                };
+                return View(ivm);
+            }
+            else if (existingInSession == null && TempData["InvalidPassword"] != null)
+            {
+                ViewBag.InvalidPassword = TempData["InvalidPassword"];
+                var ivm = new ImageViewModel
+                {
+                    Image = image,
+                    NeedPassword = true
+                };
+                return View(ivm);
+            }
+            else if (existingInSession.Contains(id))
+            {
+                var ivm = new ImageViewModel
+                {
+                    Image = image,
+                    NeedPassword = false
+                };
+                im.IncreaseImageViews(id);
+                return View(ivm);
+            }
+            else
+            {
+                if (TempData["InvalidPassword"] != null)
+                {
+                    ViewBag.InvalidPassword = TempData["InvalidPassword"];
+                }
+                var ivm = new ImageViewModel
+                {
+                    Image = image,
+                    NeedPassword = true
+                };
+                return View(ivm);
+            }
+
+        }
+        public IActionResult Password(int id, string password)
+        {
+            var im = new ImageManager(_connectionString);
+            var image = im.GetImageById(id);
+            if (image.Password == password)
+            {
+                TempData["InvalidPassword"] = false;
+                var ids = HttpContext.Session.Get<List<int>>("Session");
+                if (ids == null)
+                {
+                    ids = new List<int>();
+                }
+                ids.Add(image.Id);
+                HttpContext.Session.Set("Session", ids);
+            }
+            else
+            {
+                TempData["InvalidPassword"] = true;
+            }
+            return Redirect($"/home/viewimage?id={id}");
         }
 
+    }
+    public static class SessionExtensions
+    {
+        public static void Set<T>(this ISession session, string key, T value)
+        {
+            session.SetString(key, JsonSerializer.Serialize(value));
+        }
+
+        public static T Get<T>(this ISession session, string key)
+        {
+            string value = session.GetString(key);
+
+            return value == null ? default(T) :
+                JsonSerializer.Deserialize<T>(value);
+        }
     }
 }

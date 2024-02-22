@@ -1,22 +1,26 @@
 ﻿using System.Data.SqlClient;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 
 namespace Images.Data
 {
+
     public class ImageManager
     {
         private string _connectionString;
+        private static Dictionary<string, int> _imageDictionary = new Dictionary<string, int>();
         public ImageManager(string connectionString)
         {
             _connectionString = connectionString;
         }
-        public int AddAndGetId(string imagePath, string password)
+        public int AddAndGetId(string imagePath, string password, string fileName)
         {
             using var conn = new SqlConnection(_connectionString);
             using var comm = conn.CreateCommand();
-            comm.CommandText = "INSERT INTO Images (ImagePath,Password) VALUES (@imagePath, @password); SELECT SCOPE_IDENTITY()";
+            comm.CommandText = "INSERT INTO Images (ImagePath,Password,FileName,Views) VALUES (@imagePath, @password, @fileName, 1); SELECT SCOPE_IDENTITY()";
             comm.Parameters.AddWithValue("@imagePath", imagePath);
             comm.Parameters.AddWithValue("@password", password);
+            comm.Parameters.AddWithValue("@fileName", fileName);
             conn.Open();
             int id = (int)(decimal)comm.ExecuteScalar();
             conn.Close();
@@ -36,7 +40,9 @@ namespace Images.Data
                 {
                     Id = (int)reader["Id"],
                     ImagePath = (string)reader["ImagePath"],
-                    Password = (string)reader["Password"]
+                    Password = (string)reader["Password"],
+                    FileName = (string)reader["FileName"],
+                    Views = (int)reader["Views"]
                 };
                 images.Add(image);
             }
@@ -58,12 +64,41 @@ namespace Images.Data
                 {
                     Id = (int)reader["Id"],
                     ImagePath = (string)reader["ImagePath"],
-                    Password = (string)reader["Password"]
+                    Password = (string)reader["Password"],
+                    FileName = (string)reader["FileName"],
+                    Views = (int)reader["Views"]
                 };
-                return image;
             }
             conn.Close();
             return image;
         }
+        public void IncreaseImageViews(int id)
+        {
+            using var conn = new SqlConnection(_connectionString);
+            using var comm = conn.CreateCommand();
+            comm.CommandText = "UPDATE Images SET Views = Views + 1 WHERE Id=@id;";
+            comm.Parameters.AddWithValue("@id", id);
+            conn.Open();
+            comm.ExecuteNonQuery();
+            conn.Close();
+        }
+        //public void AddToImageDictionary(string fileName)
+        //{
+        //    _imageDictionary.Add(fileName, 1);
+        //}
+        //public int GetValueOfImageDictionary(string fileName)
+        //{
+        //    return _imageDictionary[fileName];
+        //}
+        //public void IncreaseValueOfImageDictionary(string fileName)
+        //{
+        //    _imageDictionary[fileName]++;
+        //}
+        //public Dictionary<string,int>GetImageDictionary()
+        //{
+        //    var d = _imageDictionary;
+        //    return d;
+        //}
     }
+
 }
